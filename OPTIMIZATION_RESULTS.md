@@ -187,14 +187,47 @@ jvmArgs = [
 -Drxjava3.performance.monitor=true
 ```
 
-### Performance Monitoring Setup
-```java
-// Enable monitoring
-System.setProperty("rxjava3.performance.monitor", "true");
+### Production-Ready Performance Monitoring
 
-// Get statistics
-String stats = PerformanceMonitor.getStatistics();
-System.out.println(stats);
+#### Configuration-Based Setup
+```java
+// Application startup - production approach
+public class Application {
+    public static void main(String[] args) {
+        // Initialize RxJava with configuration
+        RxJavaConfig.initialize();
+        
+        // Start your application
+        startApplication();
+    }
+}
+```
+
+#### Runtime Configuration
+```bash
+# Enable via environment variable (recommended for containers)
+export RXJAVA3_PERFORMANCE_MONITOR=true
+
+# Enable via system property
+java -Drxjava3.performance.monitor=true -jar app.jar
+
+# Configure buffer size
+java -Drx3.buffer-size=256 -jar app.jar
+```
+
+#### Plugin-Based Monitoring (No Code Pollution)
+```java
+// Monitoring is added via RxJava plugin system
+// No changes needed in business logic
+Observable.range(1, 1000)
+    .filter(n -> n % 2 == 0)  // Automatically monitored
+    .take(10)                 // Automatically monitored
+    .subscribe(System.out::println);
+
+// Get statistics when needed
+if (RxJavaConfig.isPerformanceMonitoringEnabled()) {
+    System.out.println(PerformanceMonitor.getStatistics());
+}
 ```
 
 ### Build Configuration

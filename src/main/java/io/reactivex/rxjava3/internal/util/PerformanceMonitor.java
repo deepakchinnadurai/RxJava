@@ -96,6 +96,10 @@ public final class PerformanceMonitor {
         long usedMB = heap.getUsed() / (1024 * 1024);
         long maxMB = heap.getMax() / (1024 * 1024);
         
+        if (!ENABLED) {
+            return "Performance monitoring disabled. Enable with -Drxjava3.performance.monitor=true";
+        }
+        
         return String.format(
             "RxJava Performance Stats:\n" +
             "  Observable Creations: %d\n" +

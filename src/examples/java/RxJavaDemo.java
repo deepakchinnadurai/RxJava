@@ -3,6 +3,7 @@ import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import io.reactivex.rxjava3.subjects.PublishSubject;
+import io.reactivex.rxjava3.config.RxJavaConfig;
 import io.reactivex.rxjava3.internal.util.PerformanceMonitor;
 
 
@@ -21,6 +22,13 @@ public class RxJavaDemo {
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println("\n=== RxJava Demo Application ===\n");
+        
+        // Initialize RxJava with production-ready configuration
+        RxJavaConfig.initialize();
+        
+        // Display configuration
+        System.out.println(RxJavaConfig.getConfigurationSummary());
+        System.out.println();
 
         // Basic Observable example
         basicObservableDemo();
@@ -245,15 +253,19 @@ public class RxJavaDemo {
                 () -> System.out.println("Optimized filter completed")
             );
         
-        // Demonstrate performance monitoring
-        System.out.println("\nCreating multiple Observables to test monitoring...");
-        for (int i = 0; i < 10; i++) {
-            Observable.just("Item " + i)
-                .map(s -> s.toUpperCase())
-                .subscribe(
-                    result -> {},
-                    error -> PerformanceMonitor.recordError()
-                );
+        // Demonstrate performance monitoring (if enabled)
+        if (RxJavaConfig.isPerformanceMonitoringEnabled()) {
+            System.out.println("\nCreating multiple Observables to test monitoring...");
+            for (int i = 0; i < 10; i++) {
+                Observable.just("Item " + i)
+                    .map(s -> s.toUpperCase())
+                    .subscribe(
+                        result -> {},
+                        Throwable::printStackTrace
+                    );
+            }
+        } else {
+            System.out.println("\nPerformance monitoring disabled. Enable with -Drxjava3.performance.monitor=true");
         }
         
         System.out.println("\nRunning Performance Benchmark...");
