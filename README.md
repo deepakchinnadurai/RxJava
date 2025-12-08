@@ -28,6 +28,16 @@ It extends the [observer pattern](http://en.wikipedia.org/wiki/Observer_pattern)
 
 Learn more about RxJava in general on the <a href="https://github.com/ReactiveX/RxJava/wiki">Wiki Home</a>.
 
+## 🚀 Performance Optimizations
+
+This version includes significant performance improvements:
+- **Optimized Operators**: Enhanced `take()`, `filter()`, and queue operations
+- **Build Performance**: Parallel compilation and incremental builds  
+- **Memory Efficiency**: Optimized collections and reduced allocations
+- **Monitoring**: Built-in performance monitoring and profiling tools
+
+See [PERFORMANCE_GUIDE.md](PERFORMANCE_GUIDE.md) for detailed optimization information.
+
 :information_source: Please read the [What's different in 3.0](https://github.com/ReactiveX/RxJava/wiki/What's-different-in-3.0) for details on the changes and migration information when upgrading from 2.x.
 
 #### Version 2.x

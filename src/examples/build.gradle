@@ -1,0 +1,30 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    implementation rootProject  // Main RxJava project
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['java']
+        }
+    }
+}
+
+application {
+    mainClass = 'RxJavaDemo'
+}
+
+// Explicitly declare dependencies on main project tasks
+tasks.named('compileJava') {
+    dependsOn(rootProject.tasks.named('jar'))
+}

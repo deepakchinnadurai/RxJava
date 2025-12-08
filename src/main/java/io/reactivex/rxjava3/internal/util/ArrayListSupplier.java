@@ -32,10 +32,10 @@ public enum ArrayListSupplier implements Supplier<List<Object>>, Function<Object
 
     @Override
     public List<Object> get() {
-        return new ArrayList<>();
+        return new ArrayList<>(8);
     }
 
     @Override public List<Object> apply(Object o) {
-        return new ArrayList<>();
+        return new ArrayList<>(8);
     }
 }

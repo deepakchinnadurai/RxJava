@@ -139,10 +139,10 @@ public final class ObservableGroupBy<T, K, V> extends AbstractObservableWithUpst
 
         @Override
         public void onError(Throwable t) {
-            List<GroupedUnicast<K, V>> list = new ArrayList<>(groups.values());
+            Collection<GroupedUnicast<K, V>> groupValues = groups.values();
             groups.clear();
 
-            for (GroupedUnicast<K, V> e : list) {
+            for (GroupedUnicast<K, V> e : groupValues) {
                 e.onError(t);
             }
 
@@ -151,10 +151,10 @@ public final class ObservableGroupBy<T, K, V> extends AbstractObservableWithUpst
 
         @Override
         public void onComplete() {
-            List<GroupedUnicast<K, V>> list = new ArrayList<>(groups.values());
+            Collection<GroupedUnicast<K, V>> groupValues = groups.values();
             groups.clear();
 
-            for (GroupedUnicast<K, V> e : list) {
+            for (GroupedUnicast<K, V> e : groupValues) {
                 e.onComplete();
             }
 

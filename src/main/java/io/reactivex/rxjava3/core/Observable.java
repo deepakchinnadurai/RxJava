@@ -37,6 +37,7 @@ import io.reactivex.rxjava3.observers.*;
 import io.reactivex.rxjava3.operators.ScalarSupplier;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import io.reactivex.rxjava3.schedulers.*;
+import io.reactivex.rxjava3.internal.util.PerformanceMonitor;
 
 /**
  * The {@code Observable} class is the non-backpressured, optionally multi-valued base reactive class that
@@ -1760,6 +1761,7 @@ public abstract class Observable<@NonNull T> implements ObservableSource<T> {
     @SchedulerSupport(SchedulerSupport.NONE)
     public static <@NonNull T> Observable<T> create(@NonNull ObservableOnSubscribe<T> source) {
         Objects.requireNonNull(source, "source is null");
+        PerformanceMonitor.recordObservableCreation();
         return RxJavaPlugins.onAssembly(new ObservableCreate<>(source));
     }
 
@@ -13255,6 +13257,7 @@ public abstract class Observable<@NonNull T> implements ObservableSource<T> {
     @Override
     public final void subscribe(@NonNull Observer<? super T> observer) {
         Objects.requireNonNull(observer, "observer is null");
+        PerformanceMonitor.recordSubscription();
         try {
             observer = RxJavaPlugins.onSubscribe(this, observer);
 
@@ -13265,6 +13268,7 @@ public abstract class Observable<@NonNull T> implements ObservableSource<T> {
             throw e;
         } catch (Throwable e) {
             Exceptions.throwIfFatal(e);
+            PerformanceMonitor.recordError();
             // can't call onError because no way to know if a Disposable has been set or not
             // can't call onSubscribe because the call might have set a Subscription already
             RxJavaPlugins.onError(e);

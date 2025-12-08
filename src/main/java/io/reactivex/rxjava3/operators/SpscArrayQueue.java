@@ -85,8 +85,31 @@ public final class SpscArrayQueue<E> extends AtomicReferenceArray<E> implements 
 
     @Override
     public boolean offer(E v1, E v2) {
-        // FIXME
-        return offer(v1) && offer(v2);
+        // Optimized batch offer implementation
+        if (null == v1 || null == v2) {
+            throw new NullPointerException("Null is not a valid element");
+        }
+        
+        final int mask = this.mask;
+        final long index = producerIndex.get();
+        final int offset1 = calcElementOffset(index, mask);
+        final int offset2 = calcElementOffset(index + 1, mask);
+        
+        // Check if we have space for both elements
+        if (index + 1 >= producerLookAhead) {
+            int step = lookAheadStep;
+            if (null == lvElement(calcElementOffset(index + step + 1, mask))) {
+                producerLookAhead = index + step + 1;
+            } else if (null != lvElement(offset1) || null != lvElement(offset2)) {
+                return false;
+            }
+        }
+        
+        // Store both elements atomically
+        soElement(offset1, v1);
+        soElement(offset2, v2);
+        soProducerIndex(index + 2);
+        return true;
     }
 
     @Nullable
