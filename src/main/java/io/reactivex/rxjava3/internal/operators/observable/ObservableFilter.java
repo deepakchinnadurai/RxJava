@@ -41,14 +41,15 @@ public final class ObservableFilter<T> extends AbstractObservableWithUpstream<T,
         @Override
         public void onNext(T t) {
             if (sourceMode == NONE) {
-                boolean b;
+                boolean passed;
                 try {
-                    b = filter.test(t);
+                    passed = filter.test(t);
                 } catch (Throwable e) {
                     fail(e);
                     return;
                 }
-                if (b) {
+                
+                if (passed) {
                     downstream.onNext(t);
                 }
             } else {

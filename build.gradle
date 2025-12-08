@@ -48,13 +48,23 @@ dependencies {
     testImplementation "org.reactivestreams:reactive-streams-tck:$reactiveStreamsVersion"
     testImplementation "org.testng:testng:$testNgVersion"
     testImplementation "com.google.guava:guava:$guavaVersion"
+    
+    // Performance monitoring dependencies
+    implementation "org.openjdk.jol:jol-core:0.17"
+    testImplementation "org.openjdk.jmh:jmh-core:$jmhLibVersion"
+    testImplementation "org.openjdk.jmh:jmh-generator-annprocess:$jmhLibVersion"
 }
 
 def buildWith11 = System.getenv("BUILD_WITH_11")
 java {
     toolchain {
-        vendor = JvmVendorSpec.ADOPTIUM
-        if ("true".equals(buildWith11)) {
+        // Accept any JVM vendor instead of just Adoptium
+        // vendor = JvmVendorSpec.ADOPTIUM
+
+        // Use system installed Java version if BUILD_WITH_SYSTEM_JAVA is set to true
+        if ("true".equals(System.getenv("BUILD_WITH_SYSTEM_JAVA"))) {
+            // Use any available Java version
+        } else if ("true".equals(buildWith11)) {
             languageVersion = JavaLanguageVersion.of(11)
         } else {
             languageVersion = JavaLanguageVersion.of(8)
@@ -66,6 +76,18 @@ java {
 
 tasks.withType(JavaCompile) {
     options.compilerArgs << "-parameters"
+    // Enable incremental compilation and parallel processing
+    options.incremental = true
+    options.fork = true
+    options.forkOptions.jvmArgs = ["-Xmx1g"]
+    
+    // Enable compiler optimizations
+    options.compilerArgs.addAll([
+        "-Xlint:unchecked",
+        "-Xlint:deprecation", 
+        "-Xlint:cast",
+        "-Xlint:rawtypes"
+    ])
 }
 
 apply from: file("gradle/javadoc_cleanup.gradle")
@@ -171,9 +193,20 @@ tasks.withType(Test) {
         warn.exceptionFormat = "full"
     }
 
+    // Optimize parallel test execution
     if (System.getenv("CI") == null) {
-        maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+        maxParallelForks = Runtime.runtime.availableProcessors()
+        forkEvery = 100 // Restart test worker after 100 tests to prevent memory leaks
     }
+    
+    // JVM optimizations for tests
+    jvmArgs = [
+        "-XX:+UseG1GC",
+        "-XX:MaxGCPauseMillis=100", 
+        "-XX:+UseStringDeduplication",
+        "-Xms512m",
+        "-Xmx2g"
+    ]
 }
 
 jacocoTestReport {

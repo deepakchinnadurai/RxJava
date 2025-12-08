@@ -38,9 +38,12 @@ public final class ObservableTake<T> extends AbstractObservableWithUpstream<T, T
         Disposable upstream;
 
         long remaining;
+        final long originalLimit;
+        
         TakeObserver(Observer<? super T> actual, long limit) {
             this.downstream = actual;
             this.remaining = limit;
+            this.originalLimit = limit;
         }
 
         @Override
@@ -59,11 +62,16 @@ public final class ObservableTake<T> extends AbstractObservableWithUpstream<T, T
 
         @Override
         public void onNext(T t) {
-            if (!done && remaining-- > 0) {
-                boolean stop = remaining == 0;
-                downstream.onNext(t);
-                if (stop) {
-                    onComplete();
+            if (!done) {
+                long r = remaining;
+                if (r > 0) {
+                    downstream.onNext(t);
+                    if (--r == 0) {
+                        remaining = 0;
+                        onComplete();
+                    } else {
+                        remaining = r;
+                    }
                 }
             }
         }

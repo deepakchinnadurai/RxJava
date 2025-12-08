@@ -1,1 +1,3 @@
 rootProject.name='rxjava'
+include 'examples'
+project(':examples').projectDir = new File('src/examples')
